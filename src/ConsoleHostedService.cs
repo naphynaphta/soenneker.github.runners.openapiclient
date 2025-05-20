@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Soenneker.GitHub.Runners.OpenApiClient;
 
-public class ConsoleHostedService : IHostedService
+public sealed class ConsoleHostedService : IHostedService
 {
     private readonly ILogger<ConsoleHostedService> _logger;
 
