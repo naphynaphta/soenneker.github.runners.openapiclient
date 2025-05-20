@@ -68,7 +68,14 @@ public sealed class FileOperationsUtil : IFileOperationsUtil
 
         // Restore and build safe needed before AddMissing
 
-        await _usingsUtil.AddMissing(Path.Combine(srcDirectory, Constants.Library + ".csproj"), cancellationToken).NoSync();
+        try
+        {
+            await _usingsUtil.AddMissing(Path.Combine(srcDirectory, Constants.Library + ".csproj"), cancellationToken).NoSync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "AddMissing threw");
+        }
 
         await BuildAndPush(gitDirectory, cancellationToken).NoSync();
     }
@@ -137,11 +144,16 @@ public sealed class FileOperationsUtil : IFileOperationsUtil
 
         try
         {
-            await _dotnetUtil.Build(projFilePath, true, "Release", false, cancellationToken: cancellationToken);
+            bool success = await _dotnetUtil.Build(projFilePath, true, "Release", false, cancellationToken: cancellationToken);
+
+            if (!success)
+            {
+                _logger.LogWarning("Build completed but failed (returned false)");
+            }
         }
         catch (Exception ex)
-        { 
-        
+        {
+            _logger.LogError(ex, "Build threw");
         }
     }
 
