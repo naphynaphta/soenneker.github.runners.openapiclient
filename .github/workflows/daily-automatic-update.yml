@@ -53,5 +53,12 @@ jobs:
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
+      - name: Copy Roslyn BuildHost files
+        run: |
+          host_source=$(find ~/.nuget/packages/microsoft.codeanalysis.workspaces.msbuild -type d -name "BuildHost-netcore")
+          host_target=src/bin/Release/net9.0/BuildHost-netcore
+          mkdir -p "$host_target"
+          cp -r "$host_source/"* "$host_target/"
+
       - name: Run
         run: dotnet run --project src/Soenneker.GitHub.Runners.OpenApiClient.csproj --no-restore --verbosity normal --framework net9.0
