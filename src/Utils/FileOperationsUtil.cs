@@ -150,7 +150,7 @@ public sealed class FileOperationsUtil : IFileOperationsUtil
 
         try
         {
-            bool success = await _dotnetUtil.Build(projFilePath, true, "Release", false, cancellationToken: cancellationToken);
+            bool success = await _dotnetUtil.Build(projFilePath, true, "Release", false, verbosity: "quiet",  cancellationToken: cancellationToken);
 
             if (!success)
             {
