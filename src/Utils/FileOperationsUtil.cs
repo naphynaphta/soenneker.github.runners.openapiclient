@@ -1,20 +1,20 @@
 ﻿using Microsoft.Extensions.Logging;
 using Soenneker.Extensions.String;
+using Soenneker.Extensions.ValueTask;
 using Soenneker.Git.Util.Abstract;
 using Soenneker.GitHub.Runners.OpenApiClient.Utils.Abstract;
 using Soenneker.Utils.Dotnet.Abstract;
 using Soenneker.Utils.Environment;
+using Soenneker.Utils.File.Abstract;
+using Soenneker.Utils.File.Download.Abstract;
+using Soenneker.Utils.FileSync.Abstract;
 using Soenneker.Utils.Process.Abstract;
+using Soenneker.Utils.Usings.Abstract;
 using System;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Soenneker.Extensions.ValueTask;
-using Soenneker.Utils.File.Abstract;
-using Soenneker.Utils.File.Download.Abstract;
-using Soenneker.Utils.FileSync.Abstract;
-using System.Collections.Generic;
 
 namespace Soenneker.GitHub.Runners.OpenApiClient.Utils;
 
@@ -28,10 +28,10 @@ public class FileOperationsUtil : IFileOperationsUtil
     private readonly IOpenApiFixer _openApiFixer;
     private readonly IFileDownloadUtil _fileDownloadUtil;
     private readonly IFileUtilSync _fileUtilSync;
-    private readonly IFileUtil _fileUtil;
+    private readonly IUsingsUtil _usingsUtil;
 
     public FileOperationsUtil(ILogger<FileOperationsUtil> logger, IGitUtil gitUtil, IDotnetUtil dotnetUtil, IProcessUtil processUtil,
-        IOpenApiFixer openApiFixer, IFileDownloadUtil fileDownloadUtil, IFileUtilSync fileUtilSync, IFileUtil fileUtil)
+        IOpenApiFixer openApiFixer, IFileDownloadUtil fileDownloadUtil, IFileUtilSync fileUtilSync, IFileUtil fileUtil, IUsingsUtil usingsUtil)
     {
         _logger = logger;
         _gitUtil = gitUtil;
@@ -40,7 +40,7 @@ public class FileOperationsUtil : IFileOperationsUtil
         _openApiFixer = openApiFixer;
         _fileDownloadUtil = fileDownloadUtil;
         _fileUtilSync = fileUtilSync;
-        _fileUtil = fileUtil;
+        _usingsUtil = usingsUtil;
     }
 
     public async ValueTask Process(CancellationToken cancellationToken = default)
@@ -51,8 +51,10 @@ public class FileOperationsUtil : IFileOperationsUtil
 
         _fileUtilSync.DeleteIfExists(targetFilePath);
 
-        string? filePath = await _fileDownloadUtil.Download("https://raw.githubusercontent.com/github/rest-api-description/refs/heads/main/descriptions-next/api.github.com/api.github.com.json",
-            targetFilePath, fileExtension: ".json", cancellationToken: cancellationToken);
+        string? filePath =
+            await _fileDownloadUtil.Download(
+                "https://raw.githubusercontent.com/github/rest-api-description/refs/heads/main/descriptions-next/api.github.com/api.github.com.json",
+                targetFilePath, fileExtension: ".json", cancellationToken: cancellationToken);
 
         await _processUtil.Start("dotnet", null, "tool update --global Microsoft.OpenApi.Kiota", waitForExit: true, cancellationToken: cancellationToken);
 
@@ -61,7 +63,10 @@ public class FileOperationsUtil : IFileOperationsUtil
         DeleteAllExceptCsproj(srcDirectory);
 
         await _processUtil.Start("kiota", gitDirectory, $"kiota generate -l CSharp -d \"{filePath}\" -o src -c GitHubOpenApiClient -n {Constants.Library}",
-            waitForExit: true, cancellationToken: cancellationToken).NoSync();
+                              waitForExit: true, cancellationToken: cancellationToken)
+                          .NoSync();
+
+        await _usingsUtil.AddMissing(Path.Combine(srcDirectory, Constants.Library + ".csproj"), cancellationToken);
 
         await BuildAndPush(gitDirectory, cancellationToken).NoSync();
     }
