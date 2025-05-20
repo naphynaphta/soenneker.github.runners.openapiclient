@@ -64,6 +64,9 @@ public sealed class FileOperationsUtil : IFileOperationsUtil
                           .NoSync();
 
         await Restore(gitDirectory, cancellationToken).NoSync();
+        await BuildSafe(gitDirectory, cancellationToken).NoSync();
+
+        // Restore and build safe needed before AddMissing
 
         await _usingsUtil.AddMissing(Path.Combine(srcDirectory, Constants.Library + ".csproj"), cancellationToken).NoSync();
 
@@ -126,6 +129,20 @@ public sealed class FileOperationsUtil : IFileOperationsUtil
         string projFilePath = Path.Combine(gitDirectory, "src", $"{Constants.Library}.csproj");
 
         await _dotnetUtil.Restore(projFilePath, cancellationToken: cancellationToken);
+    }
+
+    private async ValueTask BuildSafe(string gitDirectory, CancellationToken cancellationToken)
+    {
+        string projFilePath = Path.Combine(gitDirectory, "src", $"{Constants.Library}.csproj");
+
+        try
+        {
+            await _dotnetUtil.Build(projFilePath, true, "Release", false, cancellationToken: cancellationToken);
+        }
+        catch (Exception ex)
+        { 
+        
+        }
     }
 
     private async ValueTask BuildAndPush(string gitDirectory, CancellationToken cancellationToken)
