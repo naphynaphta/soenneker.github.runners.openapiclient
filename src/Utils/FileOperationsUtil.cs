@@ -133,13 +133,19 @@ public sealed class FileOperationsUtil : IFileOperationsUtil
 
     private async ValueTask Restore(string gitDirectory, CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Starting Restore...");
+
         string projFilePath = Path.Combine(gitDirectory, "src", $"{Constants.Library}.csproj");
 
         await _dotnetUtil.Restore(projFilePath, cancellationToken: cancellationToken);
+
+        _logger.LogInformation("Ending Restore");
     }
 
     private async ValueTask BuildSafe(string gitDirectory, CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Starting BuildSafe...");
+
         string projFilePath = Path.Combine(gitDirectory, "src", $"{Constants.Library}.csproj");
 
         try
@@ -155,10 +161,14 @@ public sealed class FileOperationsUtil : IFileOperationsUtil
         {
             _logger.LogError(ex, "Build threw");
         }
+
+        _logger.LogInformation("Ending BuildSafe");
     }
 
     private async ValueTask BuildAndPush(string gitDirectory, CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Starting BuildAndPush...");
+
         string projFilePath = Path.Combine(gitDirectory, "src", $"{Constants.Library}.csproj");
 
         bool successful = await _dotnetUtil.Build(projFilePath, true, "Release", false, cancellationToken: cancellationToken);
