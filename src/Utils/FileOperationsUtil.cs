@@ -27,9 +27,10 @@ public sealed class FileOperationsUtil : IFileOperationsUtil
     private readonly IFileDownloadUtil _fileDownloadUtil;
     private readonly IFileUtilSync _fileUtilSync;
     private readonly IUsingsUtil _usingsUtil;
+    private readonly RunOptions _runOptions;
 
     public FileOperationsUtil(ILogger<FileOperationsUtil> logger, IGitUtil gitUtil, IDotnetUtil dotnetUtil, IProcessUtil processUtil,
-        IFileDownloadUtil fileDownloadUtil, IFileUtilSync fileUtilSync, IUsingsUtil usingsUtil)
+        IFileDownloadUtil fileDownloadUtil, IFileUtilSync fileUtilSync, IUsingsUtil usingsUtil, RunOptions runOptions)
     {
         _logger = logger;
         _gitUtil = gitUtil;
@@ -38,46 +39,62 @@ public sealed class FileOperationsUtil : IFileOperationsUtil
         _fileDownloadUtil = fileDownloadUtil;
         _fileUtilSync = fileUtilSync;
         _usingsUtil = usingsUtil;
+        _runOptions = runOptions;
     }
 
     public async ValueTask Process(CancellationToken cancellationToken = default)
     {
-        string gitDirectory = _gitUtil.CloneToTempDirectory($"https://github.com/soenneker/{Constants.Library.ToLowerInvariantFast()}");
-
-        string targetFilePath = Path.Combine(gitDirectory, "api.github.com.json");
-
-        _fileUtilSync.DeleteIfExists(targetFilePath);
-
-        string? filePath =
-            await _fileDownloadUtil.Download(
-                "https://raw.githubusercontent.com/github/rest-api-description/refs/heads/main/descriptions-next/api.github.com/api.github.com.json",
-                targetFilePath, fileExtension: ".json", cancellationToken: cancellationToken);
-
-        await _processUtil.Start("dotnet", null, "tool update --global Microsoft.OpenApi.Kiota", waitForExit: true, cancellationToken: cancellationToken);
-
-        string srcDirectory = Path.Combine(gitDirectory, "src");
-
-        DeleteAllExceptCsproj(srcDirectory);
-
-        await _processUtil.Start("kiota", gitDirectory, $"kiota generate -l CSharp -d \"{filePath}\" -o src -c GitHubOpenApiClient -n {Constants.Library}",
-                              waitForExit: true, cancellationToken: cancellationToken)
-                          .NoSync();
-
-        await Restore(gitDirectory, cancellationToken).NoSync();
-        await BuildSafe(gitDirectory, cancellationToken).NoSync();
-
-        // Restore and build safe needed before AddMissing
-
-        try
+        if (_runOptions.Code == 0)
         {
-            await _usingsUtil.AddMissing(Path.Combine(srcDirectory, Constants.Library + ".csproj"), cancellationToken).NoSync();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "AddMissing threw");
-        }
+            string gitDirectory = _gitUtil.CloneToTempDirectory($"https://github.com/soenneker/{Constants.Library.ToLowerInvariantFast()}");
 
-        await BuildAndPush(gitDirectory, cancellationToken).NoSync();
+            string statePath = Path.Combine(Path.GetTempPath(), "openapi-run-state.txt");
+            await File.WriteAllTextAsync(statePath, gitDirectory, cancellationToken);
+
+            string targetFilePath = Path.Combine(gitDirectory, "api.github.com.json");
+
+            _fileUtilSync.DeleteIfExists(targetFilePath);
+
+            string? filePath =
+                await _fileDownloadUtil.Download(
+                    "https://raw.githubusercontent.com/github/rest-api-description/refs/heads/main/descriptions-next/api.github.com/api.github.com.json",
+                    targetFilePath, fileExtension: ".json", cancellationToken: cancellationToken);
+
+            await _processUtil.Start("dotnet", null, "tool update --global Microsoft.OpenApi.Kiota", waitForExit: true, cancellationToken: cancellationToken);
+
+            string srcDirectory = Path.Combine(gitDirectory, "src");
+
+            DeleteAllExceptCsproj(srcDirectory);
+
+            await _processUtil.Start("kiota", gitDirectory, $"kiota generate -l CSharp -d \"{filePath}\" -o src -c GitHubOpenApiClient -n {Constants.Library}",
+                                  waitForExit: true, cancellationToken: cancellationToken)
+                              .NoSync();
+
+            await Restore(gitDirectory, cancellationToken).NoSync();
+            await Build(gitDirectory, cancellationToken).NoSync();
+        }
+        else
+        {
+            string statePath = Path.Combine(Path.GetTempPath(), "openapi-run-state.txt");
+
+            if (!File.Exists(statePath))
+                throw new InvalidOperationException("Could not find the saved temp directory from the previous run.");
+
+            string gitDirectory = await File.ReadAllTextAsync(statePath, cancellationToken);
+
+            string srcDirectory = Path.Combine(gitDirectory, "src");
+
+            try
+            {
+                await _usingsUtil.AddMissing(Path.Combine(srcDirectory, Constants.Library + ".csproj"), cancellationToken).NoSync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "AddMissing threw");
+            }
+
+            await BuildAndPush(gitDirectory, cancellationToken).NoSync();
+        }
     }
 
     public void DeleteAllExceptCsproj(string directoryPath)
@@ -142,27 +159,15 @@ public sealed class FileOperationsUtil : IFileOperationsUtil
         _logger.LogInformation("Ending Restore");
     }
 
-    private async ValueTask BuildSafe(string gitDirectory, CancellationToken cancellationToken)
+    private async ValueTask Build(string gitDirectory, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Starting BuildSafe...");
+        _logger.LogInformation("Starting Build...");
 
         string projFilePath = Path.Combine(gitDirectory, "src", $"{Constants.Library}.csproj");
 
-        try
-        {
-            bool success = await _dotnetUtil.Build(projFilePath, true, "Release", false, verbosity: "quiet",  cancellationToken: cancellationToken);
+        bool success = await _dotnetUtil.Build(projFilePath, true, "Release", false, cancellationToken: cancellationToken);
 
-            if (!success)
-            {
-                _logger.LogWarning("Build completed but failed (returned false)");
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Build threw");
-        }
-
-        _logger.LogInformation("Ending BuildSafe");
+        _logger.LogInformation("Ending Build");
     }
 
     private async ValueTask BuildAndPush(string gitDirectory, CancellationToken cancellationToken)

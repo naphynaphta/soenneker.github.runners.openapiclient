@@ -1,11 +1,13 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using Soenneker.Enums.DeployEnvironment;
 using Soenneker.Extensions.LoggerConfiguration;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Soenneker.GitHub.Runners.OpenApiClient;
 
@@ -15,8 +17,18 @@ public class Program
 
     private static CancellationTokenSource? _cts;
 
+    private static RunOptions _runOptions;
+
     public static async Task Main(string[] args)
     {
+        if (args.Length == 0 || !int.TryParse(args[0], out int inputCode))
+            throw new ArgumentException("A valid integer argument must be passed to the application.");
+
+        // Now you can use inputCode throughout the program
+        Console.WriteLine($"Received integer argument: {inputCode}");
+
+        _runOptions = new RunOptions { Code = inputCode };
+
         _environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
         if (string.IsNullOrWhiteSpace(_environment))
@@ -61,7 +73,9 @@ public class Program
                 builder.Build();
             })
             .UseSerilog()
-            .ConfigureServices((_, services) => { Startup.ConfigureServices(services); });
+            .ConfigureServices((_, services) => {
+                services.AddSingleton(_runOptions);
+                Startup.ConfigureServices(services); });
 
         return host;
     }

@@ -61,4 +61,8 @@ jobs:
           cp -r "$host_source/"* "$host_target/"
 
       - name: Run
-        run: dotnet run --project src/Soenneker.GitHub.Runners.OpenApiClient.csproj --no-restore --verbosity normal --framework net9.0 --configuration Release
+        run: dotnet run --project src/Soenneker.GitHub.Runners.OpenApiClient.csproj --no-restore --verbosity normal --framework net9.0 --configuration Release -- 0
+        continue-on-error: true
+     
+      - name: Run
+        run: dotnet run --project src/Soenneker.GitHub.Runners.OpenApiClient.csproj --no-restore --verbosity normal --framework net9.0 --configuration Release -- 1
